@@ -1,0 +1,6 @@
+_extends: gh-config
+
+repository:
+  description: A collection of helper functions to implement transactional operations.
+  homepage: https://blog.openacid.com
+  topics: python, CASRecord
