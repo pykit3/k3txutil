@@ -26,18 +26,16 @@ User should raise this exception when a CAS conflict detect in a user defined
 # from .proc import CalledProcessError
 # from .proc import ProcError
 
-__version__ = "0.1.0"
-__name__ = "k3txutil"
+from importlib.metadata import version
+
+__version__ = version("k3txutil")
 
 from .txutil import (
     CASConflict,
-
     cas_loop,
 )
 
 __all__ = [
     "CASConflict",
-
     "cas_loop",
 ]
-

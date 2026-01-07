@@ -3,7 +3,6 @@ import threading
 
 
 class Foo(object):
-
     def __init__(self):
         self.lock = threading.RLock()
         self.val = 0
@@ -15,7 +14,6 @@ class Foo(object):
             return self.val, self.ver
 
     def _set(self, db, key, val, prev_stat, **kwargs):
-
         # db, key == 'dbname', 'mykey'
         with self.lock:
             if prev_stat != self.ver:
@@ -25,7 +23,14 @@ class Foo(object):
             self.ver += 1
 
     def test_cas(self):
-        for curr in k3txutil.cas_loop(self._get, self._set, args=('dbname', 'mykey',)):
+        for curr in k3txutil.cas_loop(
+            self._get,
+            self._set,
+            args=(
+                "dbname",
+                "mykey",
+            ),
+        ):
             curr.v += 2
 
         print((self.val, self.ver))  # (2, 1)

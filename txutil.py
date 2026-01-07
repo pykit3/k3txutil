@@ -17,6 +17,7 @@ class CASConflict(CASError):
     User should raise this exception when a CAS conflict detect in a user defined
     `set` function.
     """
+
     pass
 
 
@@ -31,6 +32,7 @@ class CASRecord(object):
     `n` is the number of times it CAS runs.
     The first time `n` is 0.
     """
+
     def __init__(self, v, stat, n):
         self.v = v
         self.stat = stat
@@ -63,7 +65,6 @@ def cas_loop(getter, setter, args=(), kwargs=None, conflicterror=CASConflict):
 
     i = -1
     while True:
-
         i += 1
 
         val, stat = getter(*args, **kwargs)
@@ -79,5 +80,5 @@ def cas_loop(getter, setter, args=(), kwargs=None, conflicterror=CASConflict):
             setter(*(args + (rec.v, rec.stat)), **kwargs)
             return
         except conflicterror as e:
-            logger.info(repr(e) + ' while cas set')
+            logger.info(repr(e) + " while cas set")
             continue
