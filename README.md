@@ -1,7 +1,6 @@
 # k3txutil
 
 [![Action-CI](https://github.com/pykit3/k3txutil/actions/workflows/python-package.yml/badge.svg)](https://github.com/pykit3/k3txutil/actions/workflows/python-package.yml)
-[![Build Status](https://travis-ci.com/pykit3/k3txutil.svg?branch=master)](https://travis-ci.com/pykit3/k3txutil)
 [![Documentation Status](https://readthedocs.org/projects/k3txutil/badge/?version=stable)](https://k3txutil.readthedocs.io/en/stable/?badge=stable)
 [![Package](https://img.shields.io/pypi/pyversions/k3txutil)](https://pypi.org/project/k3txutil)
 
