@@ -1,8 +1,9 @@
-import k3txutil
 import threading
 
+import k3txutil
 
-class Foo(object):
+
+class Foo:
     def __init__(self):
         self.lock = threading.RLock()
         self.val = 0

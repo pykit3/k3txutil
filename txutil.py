@@ -1,7 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-
 import copy
 import logging
 
@@ -18,10 +14,8 @@ class CASConflict(CASError):
     `set` function.
     """
 
-    pass
 
-
-class CASRecord(object):
+class CASRecord:
     """
     The class of a record yielded from `txutil.cas_loop()`.
     It has 3 attributes `v`, `stat` and `n`.

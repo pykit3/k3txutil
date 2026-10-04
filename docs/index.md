@@ -20,16 +20,19 @@ pip install k3txutil
 import k3txutil
 
 # Simple counter with CAS
-data = {'value': 0, 'version': 0}
+data = {"value": 0, "version": 0}
+
 
 def getter():
-    return data['value'], data['version']
+    return data["value"], data["version"]
+
 
 def setter(new_val, old_version):
-    if data['version'] != old_version:
+    if data["version"] != old_version:
         raise k3txutil.CASConflict()
-    data['value'] = new_val
-    data['version'] += 1
+    data["value"] = new_val
+    data["version"] += 1
+
 
 # Increment with retry on conflict
 for rec in k3txutil.cas_loop(getter, setter):

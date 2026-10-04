@@ -1,8 +1,10 @@
 import threading
 import unittest
+
 import k3thread
-import k3txutil
 import k3ut
+
+import k3txutil
 
 dd = k3ut.dd
 
@@ -42,11 +44,9 @@ class TestCASLoop(unittest.TestCase):
             curr.v += 2
 
     def test_cas_n(self):
-        i = 0
-        for curr in k3txutil.cas_loop(self._get, self._set_raise_myerror, conflicterror=MyError):
+        for i, curr in enumerate(k3txutil.cas_loop(self._get, self._set_raise_myerror, conflicterror=MyError)):
             self.assertEqual(i, curr.n)
-            i += 1
-            if i == 5:
+            if i == 4:
                 break
 
     def test_cas_abort(self):
@@ -74,7 +74,7 @@ class TestCASLoop(unittest.TestCase):
         def _set(*args, **kwargs):
             rst["set"] = args, kwargs
 
-        for curr in k3txutil.cas_loop(_get, _set, ("foo", "bar"), dict(a=1, b=2)):
+        for curr in k3txutil.cas_loop(_get, _set, ("foo", "bar"), {"a": 1, "b": 2}):
             curr.v = "uservalue"
 
         self.assertEqual((("foo", "bar"), {"a": 1, "b": 2}), rst["get"])
