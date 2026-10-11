@@ -1,3 +1,4 @@
+import copy
 import threading
 import unittest
 
@@ -91,14 +92,68 @@ class TestCASLoop(unittest.TestCase):
         self.assertEqual((("uservalue", "stat"), {}), rst["set"])
 
     def test_cas_concurrent(self):
-        def _update():
-            for ii in range(10):
-                for curr in k3txutil.cas_loop(self._get, self._set):
-                    curr.v += 1
+        # Both threads read version 0 before either sets, so exactly one of them conflicts and retries once.
+        barrier = threading.Barrier(2)
+        last_n = []
 
-        ths = [k3thread.daemon(_update) for _ in range(10)]
+        def _update():
+            for curr in k3txutil.cas_loop(self._get, self._set):
+                if curr.n == 0:
+                    barrier.wait()
+                curr.v += 1
+            last_n.append(curr.n)
+
+        ths = [k3thread.daemon(_update) for _ in range(2)]
 
         for th in ths:
             th.join()
 
-        self.assertEqual((100, 100), (self.val, self.ver))
+        self.assertEqual((2, 2), (self.val, self.ver))
+        self.assertEqual([0, 1], sorted(last_n))
+
+    def test_cas_setter_error(self):
+        # An error that is not a conflict ends the loop after one attempt.
+        def _set(val, prev_stat):
+            raise ValueError("foo")
+
+        ns = []
+        with self.assertRaises(ValueError):
+            for curr in k3txutil.cas_loop(self._get, _set):
+                ns.append(curr.n)
+                curr.v += 1
+
+        self.assertEqual([0], ns)
+
+    def test_cas_nested_value_is_copied(self):
+        stored = {"a": {"b": 1}}
+        set_args = []
+
+        def _get():
+            return stored, "stat"
+
+        def _set(val, prev_stat):
+            set_args.append((val, prev_stat, copy.deepcopy(stored)))
+
+        for curr in k3txutil.cas_loop(_get, _set):
+            curr.v["a"]["b"] = 2
+
+        self.assertEqual([({"a": {"b": 2}}, "stat", {"a": {"b": 1}})], set_args)
+
+    def test_cas_setter_args_on_conflicts(self):
+        # The setter conflicts twice, and the value and version change between tries.
+        set_args = []
+
+        def _set(val, prev_stat):
+            set_args.append((val, prev_stat))
+            if len(set_args) <= 2:
+                self.val += 10
+                self.ver += 1
+                raise k3txutil.CASConflict()
+            self.val = val
+            self.ver += 1
+
+        for curr in k3txutil.cas_loop(self._get, _set):
+            curr.v += 1
+
+        self.assertEqual([(1, 0), (11, 1), (21, 2)], set_args)
+        self.assertEqual((21, 3), (self.val, self.ver))
