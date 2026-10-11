@@ -91,6 +91,16 @@ class TestCASLoop(unittest.TestCase):
         self.assertEqual(((), {}), rst["get"])
         self.assertEqual((("uservalue", "stat"), {}), rst["set"])
 
+        # list arg
+
+        rst = {}
+
+        for curr in k3txutil.cas_loop(_get, _set, ["foo", "bar"]):
+            curr.v = "uservalue"
+
+        self.assertEqual((("foo", "bar"), {}), rst["get"])
+        self.assertEqual((("foo", "bar", "uservalue", "stat"), {}), rst["set"])
+
     def test_cas_concurrent(self):
         # Both threads read version 0 before either sets, so exactly one of them conflicts and retries once.
         barrier = threading.Barrier(2)

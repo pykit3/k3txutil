@@ -57,6 +57,9 @@ def cas_loop(getter, setter, args=(), kwargs=None, conflicterror=CASConflict):
     if kwargs is None:
         kwargs = {}
 
+    # The setter gets `args + (rec.v, rec.stat)`, which needs a tuple.
+    args = tuple(args)
+
     i = -1
     while True:
         i += 1
